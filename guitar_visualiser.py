@@ -63,7 +63,6 @@ class String:
 
 
 class Scale:
-
     #breaks DRY
     music_notes = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#']
 
@@ -91,8 +90,3 @@ class Scale:
                 if nt in self.degrees:
                     nt.degree = self.degrees.index(nt)
                     print(f"Degree index of note {nt}: {self.degrees.index(nt)}")
-
-
-# e_standard = Fretboard(['E', 'A', 'D', 'G', 'B', 'E'], 23)
-#
-# print(e_standard)

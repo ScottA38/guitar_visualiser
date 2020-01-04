@@ -1,7 +1,7 @@
 #Util/Observer.py
 #Class support for "observer" pattern
 
-from Synchronization import *
+from Util.synchronization import *
 
 class Observer:
     def update(observable, arg):

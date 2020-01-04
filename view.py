@@ -7,27 +7,42 @@ class ScaleName(Observable):
     def __init__(self, l_widget):
         Observable.__init__(self)
         self.l_widget = l_widget
+        self.l_widget.selection_set( first = 0 )
+        self.l_widget.bind("<Button-1>", self.notifyObservers)
 
     def get_list_selection(self):
         index = int(self.l_widget.curselection()[0])
-        return list_widget.get(index)
+        return self.l_widget.get(index)
 
-    def notifyObservers(self):
+    def notifyObservers(self, *args):
         self.setChanged()
+        print("notifying!")
         scale_name = self.get_list_selection()
         Observable.notifyObservers(self, scale_name)
 
 class RelativeKey(Observer):
     def __init__(self, l_widget):
         Observer.__init__(self)
+        self.l_widget = l_widget
+        self.l_widget.selection_set( first = 0 )
+
+    def get_list_selection(self):
+        index = int(self.l_widget.curselection()[0])
+        return self.l_widget.get(index)
 
     def update(self, observable, arg):
+        print(f"updating! arg: {arg}")
+        self.draw_list(arg)
 
+    def draw_list(self, scale_name):
+        self.l_widget.delete(0, END)
+        for key in scales[scale_name].keys():
+            self.l_widget.insert(END, key)
 
-
-def draw(fretboard, scale, relative_key, frame):
-    #affecting the values of another class :(
-    scale.impose(fretboard)
+def draw_visualisation(fretboard, ScaleObj, RKeyObj, frame):
+    """function to take all current input data and draw the fretboard to screen"""
+    cur_scale = Scale("C", scales[ScaleObj.get_list_selection()][RKeyObj.get_list_selection()])
+    cur_scale.impose(fretboard)
 
     c=0
     r=0
@@ -71,6 +86,15 @@ scales = {
             }
         }
 
+def redraw(event):
+    """Method for event handling on click inside of header frame - MUST be called exclusively by the 'header' Frame"""
+    print("event fired!")
+    if event.widget.__class__.__name__ == "Frame":
+        body.destroy()
+        body = Frame(root, bd=2, relief=SUNKEN)
+        body.pack(expand=True, fill="both")
+        draw_visualisation(e_std, Obs_ScaleList, Obr_RKeyList, body)
+
 root = Tk()
 root.title("Fretboard_visualiser")
 
@@ -80,22 +104,27 @@ header.pack(expand=True, fill="both")
 body = Frame(root, bd=2, relief=SUNKEN)
 body.pack(expand=True, fill="both")
 
-
-scale_names = Frame(header, height=4, exportselection=0, name="scale_names")
-relative_key = Frame(header, height=4, exportselection=0, name="relative_keys")
+scale_names = Listbox(header, height=4, exportselection=0, name="scale_names")
+relative_key = Listbox(header, height=4, exportselection=0, name="relative_keys")
 
 scale_names.pack()
 relative_key.pack()
 
+header.bind("<Button-1>", redraw)
+
 for scale in scales.keys():
     scale_names.insert(END, scale)
 
+for key in scales["pentatonic"].keys():
+    relative_key.insert(END, key)
+
+Obs_ScaleList = ScaleName(scale_names)
+Obr_RKeyList = RelativeKey(relative_key)
+
+Obs_ScaleList.addObserver(Obr_RKeyList)
+
 e_std = Fretboard(['E', 'A', 'D', 'G', 'B', 'E'], 23)
 
-d_pent = Scale("D", scales["pentatonic"]["minor"])
-c_natural_maj = Scale("C", scales["natural"]["major"])
-f_maj_pent = Scale("F", scales["pentatonic"]["major"])
-
-#print(d_pent.degrees)
+draw_visualisation(e_std, Obs_ScaleList, Obr_RKeyList, body)
 
 root.mainloop()
