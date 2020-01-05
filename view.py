@@ -1,49 +1,6 @@
 from tkinter import *
 from guitar_visualiser import Fretboard, String, Scale, Note
-from Util.synchronization import Synchronization, synchronize, synchronized
-from Util.observer import Observer, Observable
 
-class ScaleName(Observable):
-    def __init__(self, l_widget):
-        Observable.__init__(self)
-        self.l_widget = l_widget
-        self.l_widget.selection_set( first = 0 )
-        self.l_widget.bind("<Button-1>", self.notifyObservers)
-
-    def get_list_selection(self):
-        try:
-            index = int(self.l_widget.curselection()[0])
-            return self.l_widget.get(index)
-        except IndexError:
-            print()
-            raise IndexError(f"Error occurred trying to get the current listbox selection for wrapper class {self.__class__.__name__}.\nThis is likely because a selection has not been set yet.")
-        except:
-            raise Exception(f"Unknown exception encountered when trying to get the current Listbox selection in wrapper class {self.__class__.__name__} ")
-
-    def notifyObservers(self, *args):
-        self.setChanged()
-        print("notifying!")
-        scale_name = self.get_list_selection()
-        Observable.notifyObservers(self, scale_name)
-
-class RelativeKey(Observer):
-    def __init__(self, l_widget):
-        Observer.__init__(self)
-        self.l_widget = l_widget
-        self.l_widget.selection_set( first = 0 )
-
-    def get_list_selection(self):
-        index = int(self.l_widget.curselection()[0])
-        return self.l_widget.get(index)
-
-    def update(self, observable, arg):
-        print(f"updating! arg: {arg}")
-        self.draw_list(arg)
-
-    def draw_list(self, scale_name):
-        self.l_widget.delete(0, END)
-        for key in App.scales[scale_name].keys():
-            self.l_widget.insert(END, key)
 
 class App(Tk):
     scales = {
@@ -71,7 +28,7 @@ class App(Tk):
 
     def __init__(self, *args, **kwargs):
         Tk.__init__(self, *args, **kwargs)
-        self.title("Fretboard_visualiser")
+        self.title("Fretboard Visualiser")
 
         #declare widgets to live inside of root
         self.header = Frame(self, height=100,  bd=2, relief=SUNKEN)
@@ -85,32 +42,30 @@ class App(Tk):
         for key in App.scales["pentatonic"].keys():
             self.rkey_list.insert(END, key)
 
-        #bind events
-        self.scale_names.bind("<Button-1>", )
-        self.rkey_list.bind("<Button-1>", self.redraw_body)
+        self.scale_names.selection_set( first = 0 )
+        self.rkey_list.selection_set( first = 0 )
 
-        #Listbox Observable/Observer objects
-        self.Obs_scale = ScaleName(self.scale_names)
-        self.Obr_rkey = RelativeKey(self.rkey_list)
-        #attach observer
-        self.Obs_scale.addObserver(self.Obr_rkey)
+        #bind events
+        self.scale_names.bind("<Button-1>", self.listbox_click)
+        self.rkey_list.bind("<Button-1>", self.listbox_click)
 
         #pack everything in order
         self.header.pack(expand = True, fill="both")
         self.body.pack(expand = True, fill="both")
-        self.scale_names.pack()
-        self.rkey_list.pack()
+        self.scale_names.pack(side=LEFT)
+        self.rkey_list.pack(side=LEFT)
 
-        #create fretboard objects
+        #create fretboard object
         self.fretboard = Fretboard(['E', 'A', 'D', 'G', 'B', 'E'], 23)
         self.scale = None #initialised when selection is made
-        self.current_selection = App.scales[self.Obs_scale.get_list_selection()][self.Obr_rkey.get_list_selection()]
+        self.current_selection = App.scales[self.get_list_selection(self.scale_names)][self.get_list_selection(self.rkey_list)]
         self._draw_visualisation()
 
 
     def _draw_visualisation(self):
         """function to take all current input data and draw the fretboard to screen"""
-        self.scale = Scale("C", App.scales[self.Obs_scale.get_list_selection()][self.Obr_rkey.get_list_selection()])
+        self.fretboard = Fretboard(['E', 'A', 'D', 'G', 'B', 'E'], 23)
+        self.scale = Scale("C", App.scales[self.get_list_selection(self.scale_names)][self.get_list_selection(self.rkey_list)])
         self.scale.impose(self.fretboard)
 
         c=0
@@ -132,12 +87,42 @@ class App(Tk):
             r += 1
             c=0
 
-    def redraw_body(event):
+
+
+    def listbox_click(self, event):
+        event.widget.activate(event.widget.curselection()[0 ])
+        w_name = str(event.widget).split('.')[-1]
+        if w_name == "relative_keys":
+            self.redraw_body()
+        elif w_name == "scale_names":
+            self.redraw_rkey_list()
+        else:
+            raise Exception("The widget event passed to 'App.listbox_click' does not pertain to a 'Tk.Listbox' instance")
+
+    def redraw_body(self):
         """Reconstruct body when click event is fired """
-        body.destroy()
-        body = Frame(root, bd=2, relief=SUNKEN)
-        body.pack(expand=True, fill="both")
-        self._draw_visualisation(e_std, Obs_ScaleList, Obr_RKeyList, body)
+        self.body.destroy()
+        self.body = Frame(self, bd=2, relief=SUNKEN)
+        self.body.pack(expand=True, fill="both")
+        self._draw_visualisation()
+
+    def redraw_rkey_list(self):
+        scale_name = self.get_list_selection(self.scale_names)
+        self.rkey_list.delete(0, END)
+        for key in App.scales[scale_name].keys():
+            self.rkey_list.insert(END, key)
+        self.rkey_list.selection_set( first = 0 )
+
+    def get_list_selection(self, widget):
+        try:
+            #"""helper function for extracting list index selection
+            index = int(widget.curselection()[0])
+            return widget.get(index)
+        except IndexError:
+            raise IndexError(f"When attempting to get the current selection of Tk.Listbox {str(widget).split('.')[-1]} it failed. \nThe current selection is: {widget.curselection()}")
+        except:
+            raise Exception()
+
 
 app = App()
 app.mainloop()
