@@ -5,6 +5,8 @@
 - [ ] Add audio library such that each displayed fretboard note can be clicked to play it's corresponding tone
 - [ ] Implement standardised way to store scale systems
 - [ ] Implement 'scales', 'tuning' and 'music_notes' as document globals instead of inside of classes, or store inside of separate document to clean up code
+- [ ] Add number entry to allow user to select fretboard scale length with a default
+- [ ] Add string number entry to allow user to change to bass configuration etc
 
 ### Aesthetic (GUI)
 - [ ] Nest a PhotoImage widget behind the fretboard notes with a woodgrain effect
