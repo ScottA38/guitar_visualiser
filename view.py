@@ -1,6 +1,27 @@
 from tkinter import *
 from guitar_visualiser import Fretboard, String, Scale, Note
 
+class Lb(Listbox):
+    def __init__(self, l_items, *args, **kwargs):
+        Listbox.__init__(self, *args, **kwargs)
+        self.items = l_items
+        self.repop()
+
+    def current_sel(self):
+        """helper function for extracting list index selection"""
+        try:
+            index = int(self.curselection()[0])
+            return self.get(index)
+        except IndexError:
+            raise IndexError(f"'get' current selection of Tk.Listbox {str(self).split('.')[-1]} failed. \nThe current selection is: {self.curselection()}")
+        except:
+            raise Exception()
+
+    def repop(self):
+        self.delete(0, END)
+        for item in self.items:
+            self.insert(END, item)
+        self.selection_set( first = 0 )
 
 class App(Tk):
     scales = {
@@ -25,6 +46,27 @@ class App(Tk):
                     "minor descending": [2, 2, 1, 2, 2, 1]
                 }
             }
+    tunings = {
+        "standard": {
+            "intervals": [5, 5, 5, 4, 5],
+            "roots": ["F", "Gb", "G", "Ab", "A", "Bb", "B", "C", "Cb", "D", "Db", "E"]
+        },
+        "open": {
+            "A": ["E", "A", "Db", "E", "A", "E"],
+            "B": ["B", "Gb", "B", "Gb", "B", "D"],
+            "D": ["D", "A", "D", "Gb", "A", "D"],
+            "F": [],
+            "G": []
+        },
+        "drop": {
+            "intervals": [],
+            "roots": ["Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "C", "Db", "D"]
+        },
+        "double-drop": {
+            "intervals": [],
+            "roots": ["E", "F", "Gb", "G", "Ab", "A", "Bb", "C", "Db"]
+        }
+    }
 
     def __init__(self, *args, **kwargs):
         Tk.__init__(self, *args, **kwargs)
@@ -33,39 +75,32 @@ class App(Tk):
         #declare widgets to live inside of root
         self.header = Frame(self, height=100,  bd=2, relief=SUNKEN)
         self.body = Frame(self, bd=2, relief=SUNKEN)
-        self.scale_names = Listbox(self.header, height=4, exportselection=0, name="scale_names")
-        self.rkey_list = Listbox(self.header, height=4, exportselection=0, name="relative_keys")
-
-        #populate Listboxes
-        for scale in App.scales.keys():
-            self.scale_names.insert(END, scale)
-        for key in App.scales["pentatonic"].keys():
-            self.rkey_list.insert(END, key)
-
-        self.scale_names.selection_set( first = 0 )
-        self.rkey_list.selection_set( first = 0 )
+        self.scale_root = Lb(String.music_notes, self.header, height=4, exportselection=0, name="scale_root")
+        self.scale_names = Lb(App.scales.keys(), self.header, height=4, exportselection=0, name="scale_names")
+        self.rkey_list = Lb(App.scales[self.scale_names.current_sel()].keys(), self.header, height=4, exportselection=0, name="relative_keys")
 
         #bind events
-        self.scale_names.bind("<Button-1>", self.listbox_click)
-        self.rkey_list.bind("<Button-1>", self.listbox_click)
+        self.scale_names.bind("<Double-Button-1>", self.redraw_rkey_list)
+        self.rkey_list.bind("<Double-Button-1>", self.redraw_body)
 
         #pack everything in order
         self.header.pack(expand = True, fill="both")
         self.body.pack(expand = True, fill="both")
+        self.scale_root.pack(side=LEFT)
         self.scale_names.pack(side=LEFT)
         self.rkey_list.pack(side=LEFT)
 
         #create fretboard object
         self.fretboard = Fretboard(['E', 'A', 'D', 'G', 'B', 'E'], 23)
         self.scale = None #initialised when selection is made
-        self.current_selection = App.scales[self.get_list_selection(self.scale_names)][self.get_list_selection(self.rkey_list)]
+        self.current_selection = App.scales[self.scale_names.current_sel()][self.rkey_list.current_sel()]
         self._draw_visualisation()
 
 
     def _draw_visualisation(self):
         """function to take all current input data and draw the fretboard to screen"""
         self.fretboard = Fretboard(['E', 'A', 'D', 'G', 'B', 'E'], 23)
-        self.scale = Scale("C", App.scales[self.get_list_selection(self.scale_names)][self.get_list_selection(self.rkey_list)])
+        self.scale = Scale(self.scale_root.current_sel(), App.scales[self.scale_names.current_sel()][self.rkey_list.current_sel()])
         self.scale.impose(self.fretboard)
 
         c=0
@@ -87,41 +122,17 @@ class App(Tk):
             r += 1
             c=0
 
-
-
-    def listbox_click(self, event):
-        event.widget.activate(event.widget.curselection()[0 ])
-        w_name = str(event.widget).split('.')[-1]
-        if w_name == "relative_keys":
-            self.redraw_body()
-        elif w_name == "scale_names":
-            self.redraw_rkey_list()
-        else:
-            raise Exception("The widget event passed to 'App.listbox_click' does not pertain to a 'Tk.Listbox' instance")
-
-    def redraw_body(self):
+    def redraw_body(self, event):
         """Reconstruct body when click event is fired """
         self.body.destroy()
         self.body = Frame(self, bd=2, relief=SUNKEN)
         self.body.pack(expand=True, fill="both")
         self._draw_visualisation()
 
-    def redraw_rkey_list(self):
-        scale_name = self.get_list_selection(self.scale_names)
-        self.rkey_list.delete(0, END)
-        for key in App.scales[scale_name].keys():
-            self.rkey_list.insert(END, key)
-        self.rkey_list.selection_set( first = 0 )
+    def redraw_rkey_list(self, event):
+        self.rkey_list.items = App.scales[self.scale_names.current_sel()].keys()
+        self.rkey_list.repop()
 
-    def get_list_selection(self, widget):
-        try:
-            #"""helper function for extracting list index selection
-            index = int(widget.curselection()[0])
-            return widget.get(index)
-        except IndexError:
-            raise IndexError(f"When attempting to get the current selection of Tk.Listbox {str(widget).split('.')[-1]} it failed. \nThe current selection is: {widget.curselection()}")
-        except:
-            raise Exception()
 
 
 app = App()

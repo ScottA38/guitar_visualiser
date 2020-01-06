@@ -35,22 +35,19 @@ class Note:
         return repr(self.note)
 
 class String:
-
     #breaks DRY
-    music_notes = list(map(Note, ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#']))
+    music_notes = ['A', 'Bb', 'B', 'C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab']
 
     def __init__(self, root_note, no_frets):
         self.frets = []
         #find the position of the root within music notes list
-        root_index = self.music_notes.index(root_note)
-        root_first = deque(self.music_notes)
-        #cycle list until it starts at the root note
-        root_first.rotate(-root_index)
+        root_index = String.music_notes.index(root_note)
+        root_first = deque(String.music_notes)
+        root_first.rotate(-root_index) #use 'deque' to cycle list until it starts at the root note
         for note in it.cycle(root_first):
-            self.frets.append(note)
-            if len(self.frets) == no_frets:
+            self.frets.append(Note(note))
+            if len(self.frets) >= no_frets:
                 break
-
         self.root_index = self.music_notes.index(root_note)
 
     def __str__(self):
@@ -63,19 +60,16 @@ class String:
 
 
 class Scale:
-    #breaks DRY
-    music_notes = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#']
-
     def __init__(self, root_note, intervals):
         self.root = root_note
         self.degrees = [root_note]
-        root_index = Scale.music_notes.index(root_note)
+        root_index = String.music_notes.index(root_note)
         current_index = root_index
         for i in intervals:
             current_index += i
-            next_degree = current_index % len(Scale.music_notes)
+            next_degree = current_index % len(String.music_notes)
             print(f"next_degree is: {next_degree}")
-            self.degrees.append(Scale.music_notes[next_degree])
+            self.degrees.append(String.music_notes[next_degree])
 
     def __str__(self):
         return self.degrees
