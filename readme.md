@@ -1,6 +1,6 @@
-#Guitar fretboard visualiser
+# Guitar fretboard visualiser
 
-###Don't fancy mastering 'CAGED'? Use this handy-dandy interactive tool instead
+### Don't fancy mastering 'CAGED'? Use this handy-dandy interactive tool instead
 
 Given a 'scale name' and 'relative key' (major/minor) a visual interpretation of a guitar fretboard is displayed which shows you all the notes which are legitimate to play in the specified scale
 
