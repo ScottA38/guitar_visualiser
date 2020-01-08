@@ -20,10 +20,11 @@ class Fretboard:
 
 class Note:
 
-    def __init__(self, note):
+    def __init__(self, note, octave=2):
         self.note = note
         self.marker = False
         self.degree = None
+        self.octave = octave
 
     def __eq__(self, other):
         return self.note == other
@@ -38,7 +39,7 @@ class String:
     #breaks DRY
     music_notes = ['A', 'Bb', 'B', 'C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab']
 
-    def __init__(self, root_note, no_frets):
+    def __init__(self, root_note, no_frets, root_octave=2):
         self.frets = []
         #find the position of the root within music notes list
         root_index = String.music_notes.index(root_note)
