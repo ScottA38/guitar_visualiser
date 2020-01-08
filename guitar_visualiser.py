@@ -4,9 +4,10 @@ from collections import deque
 class Fretboard:
 
     def __init__(self, tuning, no_frets):
+        assert isinstance(tuning, dict), "The tuning data passed into 'Fretboard.__init__' needs to be of type 'dict' (format:\t{[note]: [octave]})"
         self.strings = []
-        for root in tuning:
-            self.strings.append(String(root, no_frets))
+        for root, octave in tuning.items():
+            self.strings.append(String(root, no_frets, octave))
 
     def __str__(self):
         out = ""
@@ -20,7 +21,7 @@ class Fretboard:
 
 class Note:
 
-    def __init__(self, note, octave=2):
+    def __init__(self, note, octave):
         self.note = note
         self.marker = False
         self.degree = None
@@ -39,14 +40,18 @@ class String:
     #breaks DRY
     music_notes = ['A', 'Bb', 'B', 'C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab']
 
-    def __init__(self, root_note, no_frets, root_octave=2):
+    def __init__(self, root_note, no_frets, root_octave):
         self.frets = []
+        #keep track of the octave of the note
+        octave = root_octave
         #find the position of the root within music notes list
         root_index = String.music_notes.index(root_note)
         root_first = deque(String.music_notes)
         root_first.rotate(-root_index) #use 'deque' to cycle list until it starts at the root note
         for note in it.cycle(root_first):
-            self.frets.append(Note(note))
+            if note == root_note:
+                octave += 1
+            self.frets.append(Note(note, octave))
             if len(self.frets) >= no_frets:
                 break
         self.root_index = self.music_notes.index(root_note)

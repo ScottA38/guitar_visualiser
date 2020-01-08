@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://www.github.com/scotta38",
+  "title": "Tuning",
+  "description": "A defintion for a certain type of string tuning on a stringed instrument",
+  "type": "object",
+  "properties": {
+    "tuningStyle": {
+      "type": "object",
+      "description": "A logical grouping of tunings which fall under a specific style/category"
+      "minItems": 1,
+      "properties": {
+        "intervals": {
+          "type": "array, null",
+          "items": {
+            "type": "integer",
+          },
+          "roots": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 2
+            }
+          }
+        }
+      }
+    },
+    "required": ["roots"]
+  },
+  "required": []
+}

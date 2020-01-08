@@ -1,0 +1,18 @@
+{
+  "standard": {
+    "intervals": [5, 5, 5, 4, 5],
+    "roots": ["F", "Gb", "G", "Ab", "A", "Bb", "B", "C", "Cb", "D", "Db", "E"]
+  },
+  "open": {
+    "intervals": [],
+    "roots": ["A", "B", "D", "F", "G"]
+  },
+  "drop": {
+    "intervals": [],
+    "roots": ["Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "C", "Db", "D"]
+  },
+  "double-drop": {
+    "intervals": [],
+    "roots": ["E", "F", "Gb", "G", "Ab", "A", "Bb", "C", "Db"]
+  }
+}

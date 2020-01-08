@@ -26,49 +26,6 @@ class Lb(Listbox):
 
 
 class App(Tk):
-    scales = {
-                "pentatonic":
-                {
-                    "minor": [3, 2, 2, 3],
-                    "major": [2, 2, 3, 2]
-                },
-                "natural":
-                {
-                    "minor": [2, 1, 2, 2, 1, 2],
-                    "major": [2, 2, 1, 2, 2, 2]
-                },
-                "harmonic":
-                {
-                    "minor": [2, 1, 2, 2, 1, 3],
-                    "major": [2, 2, 1, 2, 1, 3]
-                },
-                "melodic":
-                {
-                    "minor ascending": [2, 1, 2, 2, 2, 2],
-                    "minor descending": [2, 2, 1, 2, 2, 1]
-                }
-            }
-    tunings = {
-        "standard": {
-            "intervals": [5, 5, 5, 4, 5],
-            "roots": ["F", "Gb", "G", "Ab", "A", "Bb", "B", "C", "Cb", "D", "Db", "E"]
-        },
-        "open": {
-            "A": ["E", "A", "Db", "E", "A", "E"],
-            "B": ["B", "Gb", "B", "Gb", "B", "D"],
-            "D": ["D", "A", "D", "Gb", "A", "D"],
-            "F": [],
-            "G": []
-        },
-        "drop": {
-            "intervals": [],
-            "roots": ["Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "C", "Db", "D"]
-        },
-        "double-drop": {
-            "intervals": [],
-            "roots": ["E", "F", "Gb", "G", "Ab", "A", "Bb", "C", "Db"]
-        }
-    }
 
     def __init__(self, *args, **kwargs):
         Tk.__init__(self, *args, **kwargs)

@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://www.github.com/scotta38",
+  "title": "Scale",
+  "description": "Storage of all scale data as used by the guitar_visualiser app",
+  "type": "object",
+  "properties": {
+    "scaleName": {
+      "type": "object",
+      "description": "An overrarching scale name under which multiple 'relative keys' (major/minor etc/. exist)",
+      "minItems": 1
+      "properties": {
+        "relativeKey": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 7
+          },
+          "minItems": 4,
+          "uniqueItems": false
+        }
+      }
+    },
+    "required": ["relativeKey"]
+  },
+  "required": []
+}

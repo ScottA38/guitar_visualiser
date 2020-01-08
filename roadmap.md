@@ -7,6 +7,7 @@
 - [ ] Implement 'scales', 'tuning' and 'music_notes' as document globals instead of inside of classes, or store inside of separate document to clean up code
 - [x] Add number entry to allow user to select fretboard scale length with a default
 - [ ] Add string number entry to allow user to change to bass configuration etc
+- [ ] Make root window scrollable to allow for fretboards larger than the screen width
 
 ### Aesthetic (GUI)
 - [ ] Nest a PhotoImage widget behind the fretboard notes with a woodgrain effect
