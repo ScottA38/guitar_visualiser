@@ -3,26 +3,42 @@
   "$id": "https://www.github.com/scotta38",
   "title": "Scale",
   "description": "Storage of all scale data as used by the guitar_visualiser app",
-  "type": "object",
-  "properties": {
-    "scaleName": {
-      "type": "object",
-      "description": "An overrarching scale name under which multiple 'relative keys' (major/minor etc/. exist)",
-      "minItems": 1,
-      "required": ["relativeKey"],
-      "properties": {
-        "relativeKey": {
-          "type": "array",
-          "items": {
-            "type": "integer",
-            "exclusiveMinimum": 0,
-            "maximum": 7
-          },
-          "minItems": 4,
-          "uniqueItems": false
+  "type": "array",
+  "items": {
+    "type": "object",
+    "description": "An overrarching scale name under which multiple 'relative keys' (major/minor etc/. exist)",
+    "minItems": 1,
+    "required": ["scaleName"],
+    "properties": {
+      "scaleName": {
+        "type": "string",
+        "minimumLength": 2
+      },
+      "relativeKey": {
+        "type": "array",
+        "minItems": 1,
+        "items": {
+          "type": "object",
+          "description": "defines all data pertaining to a relative key",
+          "minItems": 1,
+          "required": ["name", "intervals"],
+          "properties": {
+            "name": {
+              "type": "string",
+              "minimumLength": 3
+            },
+            "intervals": {
+              "type": "array",
+              "minItems": 3,
+              "items": {
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "maximum": 7
+              }
+            }
+          }
         }
       }
     }
-  },
-  "required": []
+  }
 }
