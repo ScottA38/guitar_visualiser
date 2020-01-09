@@ -8,7 +8,8 @@
     "scaleName": {
       "type": "object",
       "description": "An overrarching scale name under which multiple 'relative keys' (major/minor etc/. exist)",
-      "minItems": 1
+      "minItems": 1,
+      "required": ["relativeKey"],
       "properties": {
         "relativeKey": {
           "type": "array",
@@ -21,8 +22,7 @@
           "uniqueItems": false
         }
       }
-    },
-    "required": ["relativeKey"]
+    }
   },
   "required": []
 }
