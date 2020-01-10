@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://www.github.com/scotta38",
+  "title": "Notes",
+  "description": "Notes global",
+  "type": "array",
+  "minItems": 12,
+  "maxItems": 12,
+  "items": {
+    "type": "string",
+    "maxLength": 2
+  }
+}
