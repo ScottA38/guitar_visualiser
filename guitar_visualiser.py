@@ -66,7 +66,8 @@ class String:
 
 
 class Scale:
-    def __init__(self, root_note, intervals):
+    def __init__(self, name, root_note, intervals):
+        self.name = name
         self.root = root_note
         self.degrees = [root_note]
         root_index = String.music_notes.index(root_note)
@@ -76,6 +77,12 @@ class Scale:
             next_degree = current_index % len(String.music_notes)
             print(f"next_degree is: {next_degree}")
             self.degrees.append(String.music_notes[next_degree])
+
+    def __hash__(self):
+        return hash(self.name)
+
+    def __eq__(self, other):
+        return self.name == other.name
 
     def __str__(self):
         return self.degrees
