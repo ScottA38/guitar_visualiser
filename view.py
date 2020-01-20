@@ -1,6 +1,7 @@
 from tkinter import *
 import tkinter as tk
 from guitar_visualiser import Fretboard, String, Scale, Note
+import data
 
 class Lb(Listbox):
     def __init__(self, l_items, *args, **kwargs):
@@ -34,8 +35,8 @@ class App(Tk):
         self.header = Frame(self, height=100,  bd=2, relief=SUNKEN)
         self.body = Frame(self, bd=2, relief=SUNKEN)
         self.lb_frames = {
-            "scale_root": lambda: String.music_notes,
-            "scale_names": App.scales.keys,
+            "scale_root": lambda: data.objs['music_notes'],
+            "scale_names": data.objs['scales'].keys,
             "rkey_list": lambda: App.scales[self.scale_names.current_sel()].keys(), #has to be declared as lambda else the value is not ascertainable yet
         }
         for title, l_items in self.lb_frames.items():

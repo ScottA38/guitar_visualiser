@@ -1,27 +1,11 @@
 import itertools as it
 from collections import deque
-
-class Fretboard:
-
-    def __init__(self, tuning, no_frets):
-        assert isinstance(tuning, dict), "The tuning data passed into 'Fretboard.__init__' needs to be of type 'dict' (format:\t{[note]: [octave]})"
-        self.strings = []
-        for root, octave in tuning.items():
-            self.strings.append(String(root, no_frets, octave))
-
-    def __str__(self):
-        out = ""
-        for string in self.strings:
-            out += "String " + str(self.strings.index(string)) + ": " + str(string) + "\n"
-        return out
-
-    #def getter for indexing object like self.strings
-    def __getitem__(self, x):
-        return self.strings[x]
+import data
 
 class Note:
 
     def __init__(self, note, octave):
+        assert note in data.objs['notes'], "Note {} passed to note constructor not recognised in core data {}".format(note, data.objs['notes'])
         self.note = note
         self.marker = False
         self.degree = None
@@ -37,24 +21,20 @@ class Note:
         return repr(self.note)
 
 class String:
-    #breaks DRY
-    music_notes = ['A', 'Bb', 'B', 'C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab']
 
     def __init__(self, root_note, no_frets, root_octave):
+        self.root_index = data.objs['notes'].index(root_note)
         self.frets = []
         #keep track of the octave of the note
         octave = root_octave
-        #find the position of the root within music notes list
-        root_index = String.music_notes.index(root_note)
-        root_first = deque(String.music_notes)
-        root_first.rotate(-root_index) #use 'deque' to cycle list until it starts at the root note
-        for note in it.cycle(root_first):
+        iterator = note_iterator(root_note)
+        current_note = ""
+        while len(self.frets) > no_frets:
+            current_note = next(iterator)
             if note == root_note:
                 octave += 1
             self.frets.append(Note(note, octave))
-            if len(self.frets) >= no_frets:
-                break
-        self.root_index = self.music_notes.index(root_note)
+
 
     def __str__(self):
         out = " | "
@@ -63,6 +43,26 @@ class String:
     #def getter for indexing object as self.frets
     def __getitem__(self, x):
         return self.frets[x]
+
+
+class Fretboard:
+
+    def __init__(self, tuning, no_frets):
+        assert len(tuning) == 6, "Unexpected number of strings passed to Fretboard constructor"
+        assert all(isinstance(elem, Note) for elem in tuning), "Not all notes of tuning note list are recognised"
+        self.strings = []
+        for root, octave in tuning.items():
+            self.strings.append(String(root, no_frets, octave))
+
+    def __str__(self):
+        out = ""
+        for string in self.strings:
+            out += "String " + str(self.strings.index(string)) + ": " + str(string) + "\n"
+        return out
+
+    #def getter for indexing object like self.strings
+    def __getitem__(self, x):
+        return self.strings[x]
 
 
 class Scale:
@@ -90,3 +90,42 @@ class Scale:
                 if nt in self.degrees:
                     nt.degree = self.degrees.index(nt)
                     print(f"Degree index of note {nt}: {self.degrees.index(nt)}")
+
+
+class FretboardFactory:
+
+    base = ['E', 'A', 'D', 'G', 'B', 'E']
+
+    def __init__(self, name, root):
+        assert hasattr(self, "_" + name), "the tuning name {} passed to {} is unrecognised".format(name, self.__class__.__name__)
+        try:
+            self.tunings = data.objs['tunings'][name]
+            self.root_index = data.objs['notes'].index(root)
+        except KeyError as ke:
+            raise KeyError("Trying to access a key which doesn't exist: {}".format(ke))
+        except BaseException as e:
+            raise e
+
+    def _open(self):
+        """Function to generate the tuning pattern for a given 'open' tuning note"""
+        tuning = []
+        base_indexes = list(map(lambda note: data.objs['notes'].index(note), FretboardFactory.base))
+        print("base_indexes: {}".format(base_indexes))
+        degrees = [self.root_index, ((self.root_index + 4) % 12), ((self.root_index + 7) % 12)] #assumed open is scale major intervals
+        for n in base_indexes:
+            closest = list(map(lambda degree: abs(degree - n), degrees))
+            closest_degree = degrees[closest.index(min(closest))]
+            tuning.append(data.objs['notes'][closest_degree])
+        return tuning
+
+    def _drop(self):
+
+
+
+
+def note_iterator(root_note):
+    #find the position of the root within music notes list
+    root_index = data.objs['notes'].index(root_note)
+    root_first = deque(data.objs['notes'])
+    root_first.rotate(-root_index) #use 'deque' to cycle list until it starts at the root note
+    return it.cycle(root_first)

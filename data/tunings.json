@@ -1,22 +1,18 @@
-[
-  {
-    "tuningName": "standard",
+{
+  "standard": {
     "intervals": [5, 5, 5, 4, 5],
     "roots": ["F", "Gb", "G", "Ab", "A", "Bb", "B", "C", "Cb", "D", "Db", "E"]
   },
-  {
-    "tuningName": "open",
+  "open": {
     "intervals": null,
     "roots": ["A", "B", "D", "F", "G"]
   },
-  {
-    "tuningName": "drop",
+  "drop": {
     "intervals": null,
     "roots": ["Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "C", "Db", "D"]
   },
-  {
-    "tuningName": "double-drop",
+  "double-drop": {
     "intervals": null,
     "roots": ["E", "F", "Gb", "G", "Ab", "A", "Bb", "C", "Db"]
   }
-]
+}
