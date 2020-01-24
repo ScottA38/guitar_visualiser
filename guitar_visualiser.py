@@ -98,13 +98,9 @@ class FretboardFactory:
 
     def __init__(self, name, root):
         assert hasattr(self, "_" + name), "the tuning name {} passed to {} is unrecognised".format(name, self.__class__.__name__)
-        try:
-            self.tunings = data.objs['tunings'][name]
-            self.root_index = data.objs['notes'].index(root)
-        except KeyError as ke:
-            raise KeyError("Trying to access a key which doesn't exist: {}".format(ke))
-        except BaseException as e:
-            raise e
+        self.tuning = data.objs['tunings'][name]
+        assert root in self.tuning['roots']
+        self.root_index = data.objs['notes'].index(root)
 
     def _open(self):
         """Function to generate the tuning pattern for a given 'open' tuning note"""
@@ -118,9 +114,28 @@ class FretboardFactory:
             tuning.append(data.objs['notes'][closest_degree])
         return tuning
 
+    def standard(self):
+        """Function to generate standard tuning. Assumed that tuning intervals exist"""
+        tuning = [root]
+        prev_index = data.objs['notes'].index(tuning[0])
+        for interval in self.tuning:
+            new_index = (prev_index + interval) % 12
+            #calculate the new next note in the tuning
+            tuning.append(data.objs['notes'][new_index])
+            prev = data.objs['notes'].index(new_note)
+        return tuning
+
     def _drop(self):
+        """Function to algorithimcally generate drop tunings"""
+        tuning = FretboardFactory.base
+        tuning[0] = data.objs['notes'][root_index] #TODO: manually set the octave of the root note
+        return tuning
 
-
+    def _double_drop(self):
+        """Alrogrithmic function to generate double-drop tunings"""
+        tuning = FretboardFactory.base
+        tuning[0] = data.objs['notes'][root_index] #TODO: manually set the octave of the root note
+        return tuning
 
 
 def note_iterator(root_note):
