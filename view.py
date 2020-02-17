@@ -35,9 +35,9 @@ class App(Tk):
         self.header = Frame(self, height=100,  bd=2, relief=SUNKEN)
         self.body = Frame(self, bd=2, relief=SUNKEN)
         self.lb_frames = {
-            "scale_root": lambda: data.objs['music_notes'],
+            "scale_root": lambda: data.objs['notes'],
             "scale_names": data.objs['scales'].keys,
-            "rkey_list": lambda: App.scales[self.scale_names.current_sel()].keys(), #has to be declared as lambda else the value is not ascertainable yet
+            "rkey_list": lambda: data.objs['scales'][self.scale_names.current_sel()].keys(), #has to be declared as lambda else the value is not ascertainable yet
         }
         for title, l_items in self.lb_frames.items():
             self.lb_frames[title] = self.contain_lb(self.header, title, l_items())
@@ -66,7 +66,8 @@ class App(Tk):
 
     def _draw_visualisation(self):
         """function to take all current input data and draw the fretboard to screen"""
-        self.fretboard = Fretboard(['E', 'A', 'D', 'G', 'B', 'E'], self.no_frets.get())
+        notes = list(map(lambda x: Note(x), ['E', 'A', 'D', 'G', 'B', 'E']))
+        self.fretboard = Fretboard(notes, self.no_frets.get())
         self.scale = Scale(self.scale_root.current_sel(), App.scales[self.scale_names.current_sel()][self.rkey_list.current_sel()])
         self.scale.impose(self.fretboard)
 

@@ -49,7 +49,7 @@ class Fretboard:
 
     def __init__(self, tuning, no_frets):
         assert len(tuning) == 6, "Unexpected number of strings passed to Fretboard constructor"
-        assert all(isinstance(elem, Note) for elem in tuning), "Not all notes of tuning note list are recognised"
+        assert all(isinstance(elem, Note) for elem in tuning), "Not all notes of tuning note list are recognised, formats are: {}".format(list(map(lambda x: x.__class__.__name__, tuning)))
         self.strings = []
         for root, octave in tuning.items():
             self.strings.append(String(root, no_frets, octave))
@@ -96,16 +96,25 @@ class FretboardFactory:
 
     base = ['E', 'A', 'D', 'G', 'B', 'E']
 
+    @classmethod
+    def _get_note_index(cls, note):
+        """simply extract the note parameter in the list of notes within data"""
+        return data.objs['notes'].index(note)
+
     def __init__(self, name, root):
         assert hasattr(self, "_" + name), "the tuning name {} passed to {} is unrecognised".format(name, self.__class__.__name__)
+        self.root_octave
         self.tuning = data.objs['tunings'][name]
-        assert root in self.tuning['roots']
-        self.root_index = data.objs['notes'].index(root)
+        if self.tuning['roots']:
+            assert root in self.tuning['roots'], "Root note {} is not valid for tuning {}".format(root, name)
+            self.root_index = FretboardFactory._get_note_index(root)
+        else:
+            self.root_index = data.objs['notes']
 
     def _open(self):
         """Function to generate the tuning pattern for a given 'open' tuning note"""
         tuning = []
-        base_indexes = list(map(lambda note: data.objs['notes'].index(note), FretboardFactory.base))
+        base_indexes = list(map(FretboardFactory._get_note_index, FretboardFactory.base))
         print("base_indexes: {}".format(base_indexes))
         degrees = [self.root_index, ((self.root_index + 4) % 12), ((self.root_index + 7) % 12)] #assumed open is scale major intervals
         for n in base_indexes:
@@ -114,7 +123,7 @@ class FretboardFactory:
             tuning.append(data.objs['notes'][closest_degree])
         return tuning
 
-    def standard(self):
+    def _standard(self):
         """Function to generate standard tuning. Assumed that tuning intervals exist"""
         tuning = [root]
         prev_index = data.objs['notes'].index(tuning[0])
@@ -139,8 +148,17 @@ class FretboardFactory:
 
 
 def note_iterator(root_note):
+    """Return cyclical iterator (continutally looping until break) of notes in sequence"""
     #find the position of the root within music notes list
     root_index = data.objs['notes'].index(root_note)
     root_first = deque(data.objs['notes'])
     root_first.rotate(-root_index) #use 'deque' to cycle list until it starts at the root note
     return it.cycle(root_first)
+
+for k,v in data.objs["tunings"].items():
+    root_list = v["roots"]
+    if root_list:
+        for i, root in enumerate(v["roots"]):
+                root_list[i] = Note(root[0], root[1])
+
+#print(data.objs["tunings"])
